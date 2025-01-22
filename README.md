@@ -1,36 +1,77 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Документация проекта Chess 2
 
-## Getting Started
+## Введение
 
-First, run the development server:
+Добро пожаловать в проект! Этот документ предназначен для ознакомления разработчиков с основными принципами и стандартами работы в данном проекте. Пожалуйста, ознакомьтесь с ним внимательно.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Архитектура проекта
+
+За основу нашей архитектуры мы взяли [FSD](https://feature-sliced.design/) и доработали её под наш проект. Переименовали слой pages на views, убрал слой entities и переименовали слой app на global.
+
+```
+Иерархия слоев :
+shared > feature > widgets > views > global > app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Краткое описание слоев архитектуры и что в них должно находится.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+├── app                 # Тут храниться основной роутинг проекта
+├── src
+│ ├── global            # Настройки, стили и провайдеры для всего приложения.
+│ │ ├── localization      # Обертка с переводами всего проекта
+│ │ ├── providers         # Глобальные обертки проекта
+│ │ ├── styles            # Глобальные стили проекта и переиспользуемые scss переменные
+│ │ ├── types             # Глобальные типы. Cюда можно добавить допустим файлы с расширение *.d.ts
+│ │ └── ...
+│ ├── views             # Слой для сборки полноценных страниц из features, widgets
+│ │ ├── home
+│ │ ├── providers
+│ │ └── ...
+│ ├── widgets           # Слои, которые содержат в себе полностью самостоятельные блоки
+│ │ ├── header
+│ │ ├── feed
+│ │ ├── userProfile
+│ │ └── ...
+│ ├── features          # Слой с компонентами, которые содержать в себе бизнес логику.
+│ │ ├── sendComment
+│ │ ├── addToCart
+│ │ ├── usersSearch
+│ │ └── ...
+│ ├── shared            # Представляет собой скорее набор общеиспользуемых сегментов
+│ │ ├── lib               # Вспомогательные функции, константы и т.д (hooks,constants и т.д )
+│ │ ├── types             # Общие типы
+│ │ ├── ui                # Переиспользуемые компоненты
+│ │ ├── assets				  # Шрифты, разные меди файлы
+│ │ └── ...
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Запуск проекта локально
 
-## Learn More
+Проект создан на [Next.js](https://nextjs.org). Подробнее о Framework, можете прочитать на их сайте.
+Для запуска проекта нужно сделать следующее:
 
-To learn more about Next.js, take a look at the following resources:
+1. Клонируем репозиторий
+   ```sh
+   git clone https://github.com/center-digital-dev/chess_2.git
+   ```
+2. Ставим NPM пакеты
+   ```sh
+   npm i
+   ```
+3. Инициализируем husky для pre-commit хуков (опционально, тк они должны автоматически инициализироваться при установке пакетов)
+   ```sh
+   npm run prepare
+   ```
+4. Запускаем дев сборку
+   ```sh
+   npm run dev
+   ```
+5. Билдим прод версию
+   ```sh
+   npm run build
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```

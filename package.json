@@ -1,26 +1,38 @@
 {
-  "name": "chess",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "next": "15.1.5",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.1.5",
-    "prettier": "^3.4.2",
-    "typescript": "^5"
-  }
+   "name": "chess",
+   "version": "0.1.0",
+   "private": true,
+   "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "tsc --noEmit && eslint --ext ts,tsx --report-unused-disable-directives --color --fix --max-warnings 0",
+      "prepare": "husky"
+   },
+   "lint-staged": {
+      "*.{ts,tsx}": [
+         "npm run lint",
+         "prettier --write"
+      ]
+   },
+   "dependencies": {
+      "next": "15.1.5",
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0"
+   },
+   "devDependencies": {
+      "@eslint/eslintrc": "^3",
+      "@types/node": "^20",
+      "@types/react": "^19",
+      "@types/react-dom": "^19",
+      "eslint": "^8",
+      "eslint-config-next": "15.1.5",
+      "eslint-config-prettier": "^10.0.1",
+      "eslint-plugin-prettier": "^5.2.3",
+      "eslint-plugin-react-refresh": "^0.4.18",
+      "husky": "^9.1.7",
+      "lint-staged": "^15.4.2",
+      "prettier": "^3.4.2",
+      "typescript": "^5"
+   }
 }

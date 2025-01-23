@@ -1,0 +1,34 @@
+# Системные файлы и директории
+node_modules
+.next
+.build
+.husky
+
+# Конфигурационные файлы
+.prettierignore
+.gitignore
+.prettierrc
+Dockerfile
+.dockerignore
+next-env.d.ts
+
+# Логи и временные файлы
+*.log
+*.tmp
+
+# Специфичные файлы для редакторов кода
+.vscode
+
+# Игнорировать все .json, .svg, .yml, .woff2 файлы
+**/*.svg
+**/*.yml
+**/*.png
+**/*.jpg
+**/*.woff2
+**/*.mp4
+**/*.gif
+**/*.ogv
+**/*.webm
+
+# env переменные
+**/.env.**

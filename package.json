@@ -7,13 +7,15 @@
       "build": "next build",
       "start": "next start",
       "lint": "tsc --noEmit && eslint --ext ts,tsx --report-unused-disable-directives --color --fix --max-warnings 0",
+      "lint-styles": "stylelint \"**/*.scss\" --fix",
       "prepare": "husky"
    },
    "lint-staged": {
       "*.{ts,tsx}": [
          "npm run lint",
          "prettier --write"
-      ]
+      ],
+      "*.scss": "npm run lint-styles"
    },
    "dependencies": {
       "next": "15.1.5",
@@ -33,6 +35,9 @@
       "husky": "^9.1.7",
       "lint-staged": "^15.4.2",
       "prettier": "^3.4.2",
-      "typescript": "^5"
+      "sass": "^1.83.4",
+      "typescript": "^5",
+      "stylelint": "^15.10.3",
+      "stylelint-config-standard-scss": "^11.0.0"
    }
 }

@@ -42,18 +42,7 @@
          "error",
          {
             "groups": ["builtin", "external", "internal", ["parent", "sibling"], "index", "object", "type"],
-            "pathGroups": [
-               {
-                  "pattern": "react",
-                  "group": "external",
-                  "position": "before"
-               },
-               {
-                  "pattern": "@",
-                  "group": "internal",
-                  "position": "after"
-               }
-            ],
+
             "pathGroupsExcludedImportTypes": [],
             "newlines-between": "always",
             "alphabetize": {

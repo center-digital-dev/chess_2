@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import { baseApi } from "@shared/configs/store/baseApi";
 
-import { counterReducer } from "./slices/counter";
+import { counterReducer } from "./slices/authSlice";
 
 export const makeStore = () => {
    return configureStore({

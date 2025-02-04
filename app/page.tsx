@@ -2,11 +2,13 @@ import Link from "next/link";
 
 import HomePage from "@views/main/Home";
 
-export default function Home() {
+export default async function Home() {
    return (
       <div>
-         <h1>BASE</h1>
-         <Link href={"/todo"}>go TODO</Link>
+         <h1>
+            BASE <Link href={"/todo"}>TODO</Link>
+         </h1>
+
          <HomePage />
       </div>
    );

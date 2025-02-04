@@ -23,7 +23,8 @@
          "@views/*": ["./src/views/*"],
          "@shared/*": ["./src/shared/*"],
          "@ui/*": ["./src/shared/ui/*"],
-         "@widgets/*": ["./src/widgets/*"]
+         "@widgets/*": ["./src/widgets/*"],
+         "@api/*": ["./src/shared/configs/store/api/*"]
       }
    },
    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

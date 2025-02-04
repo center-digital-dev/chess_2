@@ -1,32 +1,18 @@
 "use client";
 
-import { useGetPeopleQuery } from "@shared/configs/store/api/starWars/starWarsPeople";
-import { increment, decrement } from "@shared/configs/store/slices/counter";
-import { useAppDispatch, useAppSelector } from "@shared/hooks/useReduxStore";
-
-import styles from "./page.module.scss";
+import { useTestTokenMutation } from "@shared/configs/store/api/auth/apiAuth";
+import { LoginForm } from "@widgets/loginForm";
+import { RegistrationForm } from "@widgets/registrationForm";
 
 const HomePage = () => {
-   const dispatch = useAppDispatch();
-   const { data } = useGetPeopleQuery();
-   const { value } = useAppSelector((state) => state.counter);
-
+   const [testToken] = useTestTokenMutation();
    return (
-      <div className={styles.page}>
-         <h1>Count {value}</h1>
-
-         <h2>
-            Человек
-            {
-               // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-               //@ts-ignore
-               data?.name && data.name
-            }
-         </h2>
-         <button onClick={() => dispatch(increment())}>+</button>
-         <br />
-         <button onClick={() => dispatch(decrement())}>-</button>
-         <br />
+      <div style={{ marginTop: 20 }}>
+         <button onClick={() => testToken()}>Проверить токен</button>
+         <hr />
+         <LoginForm />
+         <hr />
+         <RegistrationForm />
       </div>
    );
 };

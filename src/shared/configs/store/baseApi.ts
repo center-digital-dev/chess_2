@@ -10,7 +10,8 @@ const baseQuery = fetchBaseQuery({
 
    prepareHeaders: (headers) => {
       // TODO Koshelev закладываю функционал на будущее, когда мы будем делать авторизацию
-      // const token = null;
+      // const token =
+      //    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwMTk0Y2MxMi05NTczLTcyZGYtODY3Zi1kNzY4MGYyNjVhOTciLCJleHAiOjE3Mzg3MTg5NzR9.xlQ_6-h5WD3NtYVtMMlADY4jsB7XsiswndBi80q2a5w";
 
       // if (token) {
       //    headers.set("Authorization", `Bearer ${token}`);

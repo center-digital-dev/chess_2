@@ -1,11 +1,12 @@
-import { baseApi } from "../../baseApi";
+import { TResponseApi } from "@shared/types/api";
 
-type TAccessToken = string;
+import { TAccessToken } from "./types";
+import { baseApi } from "../../baseApi";
 
 const apiAuth = baseApi.injectEndpoints({
    endpoints: (build) => {
       return {
-         login: build.mutation<TAccessToken, { password: string; email: string }>({
+         login: build.mutation<TResponseApi<TAccessToken>, { password: string; email: string }>({
             query(body) {
                return {
                   url: "/Users/Login",
@@ -14,7 +15,7 @@ const apiAuth = baseApi.injectEndpoints({
                };
             }
          }),
-         register: build.mutation<void, { userName: string; password: string; email: string }>({
+         register: build.mutation<TResponseApi, { userName: string; password: string; email: string }>({
             query(body) {
                return {
                   url: "/Users/Register",

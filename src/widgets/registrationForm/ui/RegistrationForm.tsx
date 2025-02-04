@@ -4,6 +4,7 @@ import * as yup from "yup";
 
 import { useRegisterMutation } from "@api/auth/apiAuth";
 import { yupEmailFiled, yupPasswordFiled } from "@shared/constants/yupCustomFields";
+import { logger } from "@shared/libs/logging";
 
 const schema = yup.object().shape({
    email: yupEmailFiled,
@@ -29,7 +30,18 @@ export const RegistrationForm = () => {
    const onSubmit = (data: yup.InferType<typeof schema>) => {
       registerUser({ email: data.email, password: data.password, userName: data.username })
          .unwrap()
-         .then(() => {});
+         .then((data) => {
+            if (data.success === true) {
+               logger.success("Операция выполнена успешно", data.data)();
+            } else {
+               if (data.errorCode === 102) {
+                  logger.error("уже есть пользователь с таким email в БД", data.data)();
+               }
+            }
+         })
+         .catch((e) => {
+            logger.error("Что то пошло не так при регистрации", e)();
+         });
    };
    return (
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -41,8 +53,9 @@ export const RegistrationForm = () => {
             <input type="text" placeholder="Username" {...register("username")} />
             {errors.username && <p>{errors.username.message}</p>}
          </div>
+
          <div>
-            <input type="password" placeholder="Пароль" {...register("password")} />
+            <input placeholder="Пароль" {...register("password")} />
             {errors.password && <p>{errors.password.message}</p>}
          </div>
          <button type="submit">Регистрация</button>

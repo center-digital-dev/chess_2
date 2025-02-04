@@ -4,6 +4,7 @@ import * as yup from "yup";
 
 import { useLoginMutation } from "@shared/configs/store/api/auth/apiAuth";
 import { yupEmailFiled, yupPasswordFiled } from "@shared/constants/yupCustomFields";
+import { logger } from "@shared/libs/logging";
 
 const schema = yup.object().shape({
    email: yupEmailFiled,
@@ -28,19 +29,33 @@ export const LoginForm = () => {
    const onSubmit = (data: yup.InferType<typeof schema>) => {
       login({ email: data.email, password: data.password })
          .unwrap()
-         .then((accessToken) => {
-            console.log("LOGIN accessToken", accessToken);
+         .then((data) => {
+            if (data.success === true) {
+               // TODO Koshelev
+               // Сейчас нам token jwt приходит в response, что не очень безопастно для XSS атак. В будущем надо сказать бекендерам, что бы они его сували сразу в куки
+               logger.success("Операция выполнена успешно", data)();
+            } else {
+               if (data.errorCode === 101) {
+                  logger.error("Не корректные данные", data.data)();
+               }
+               if (data.errorCode === 103) {
+                  logger.error("Не верный пароль", data.data)();
+               }
+            }
+         })
+         .catch((e) => {
+            logger.error("Что то пошло не так при входе", e)();
          });
    };
 
    return (
       <form onSubmit={handleSubmit(onSubmit)}>
          <div>
-            <input type="text" placeholder="Email" {...register("email")} />
+            <input type="text" placeholder="Emaiel" {...register("email")} autoComplete="off" />
             {errors.email && <p>{errors.email.message}</p>}
          </div>
          <div>
-            <input type="password" placeholder="Пароль" {...register("password")} />
+            <input placeholder="Пароль" {...register("password")} autoComplete="off" />
             {errors.password && <p>{errors.password.message}</p>}
          </div>
          <button type="submit">Войти</button>

@@ -2,12 +2,12 @@ import { configureStore } from "@reduxjs/toolkit";
 
 import { baseApi } from "@shared/configs/store/baseApi";
 
-import { counterReducer } from "./slices/authSlice";
+import { authReducer } from "./slices/authSlice";
 
 export const makeStore = () => {
    return configureStore({
       reducer: {
-         counter: counterReducer,
+         auth: authReducer,
          [baseApi.reducerPath]: baseApi.reducer
       },
       middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(baseApi.middleware)
@@ -15,4 +15,4 @@ export const makeStore = () => {
 };
 
 // Infer the type of makeStore
-export type AppStore = ReturnType<typeof makeStore>;
+export type TAppStore = ReturnType<typeof makeStore>;

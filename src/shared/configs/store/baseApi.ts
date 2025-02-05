@@ -1,21 +1,22 @@
 import { BaseQueryFn, FetchArgs, FetchBaseQueryError, fetchBaseQuery } from "@reduxjs/toolkit/query";
 import { createApi } from "@reduxjs/toolkit/query/react";
 
-// TODO Добавить комменты, расписать зачем нужен этот файл
+import { COOKIE_TOKEN_NAME } from "@shared/constants/cookiesNames";
+import { deleteCookie } from "@shared/libs/serverCookie/cookies";
+
+import { logOut } from "./slices/authSlice";
+import { TAppStore } from "./store";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 const baseQuery = fetchBaseQuery({
    baseUrl: baseUrl,
+   prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as ReturnType<TAppStore["getState"]>).auth.accessToken;
 
-   prepareHeaders: (headers) => {
-      // TODO Koshelev закладываю функционал на будущее, когда мы будем делать авторизацию
-      // const token =
-      //    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIwMTk0Y2MxMi05NTczLTcyZGYtODY3Zi1kNzY4MGYyNjVhOTciLCJleHAiOjE3Mzg3MTg5NzR9.xlQ_6-h5WD3NtYVtMMlADY4jsB7XsiswndBi80q2a5w";
-
-      // if (token) {
-      //    headers.set("Authorization", `Bearer ${token}`);
-      // }
+      if (token) {
+         headers.set("Authorization", `Bearer ${token}`);
+      }
 
       return headers;
    }
@@ -28,10 +29,11 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
 ) => {
    const result = await baseQuery(args, api, extraOptions);
 
-   // TODO Koshelev додумать логику с обновлением токена
-   // if (result.error && result.error.status === 401) {
-   //    api.dispatch(logOut());
-   // }
+   // Делаем пользователя не авторизованным, если с бека нам пришел ответ, то что токен протух
+   if (result.error && result.error.status === 401) {
+      await deleteCookie(COOKIE_TOKEN_NAME);
+      api.dispatch(logOut());
+   }
 
    return result;
 };

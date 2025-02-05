@@ -1,23 +1,34 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 interface IAuthState {
-   access: string | null;
+   accessToken: string | null;
+   isAuth: boolean;
 }
 
 const initialState: IAuthState = {
-   access: null
+   accessToken: null,
+   isAuth: false
 };
 
-export const counterSlice = createSlice({
-   name: "counter",
+export const authSlice = createSlice({
+   name: "authSlice",
    initialState,
    reducers: {
-      setAccess: (state, { payload }: PayloadAction<string>) => {
-         state.access = payload;
+      setAccessToken: (state, action: PayloadAction<{ token: string }>) => {
+         state.accessToken = action.payload.token;
+      },
+      logIn: (state, action: PayloadAction<{ token: string }>) => {
+         state.accessToken = action.payload.token;
+         state.isAuth = true;
+      },
+
+      logOut: (state) => {
+         state.accessToken = null;
+         state.isAuth = false;
       }
    }
 });
 
-export const { setAccess } = counterSlice.actions;
+export const { logIn, logOut, setAccessToken } = authSlice.actions;
 
-export const counterReducer = counterSlice.reducer;
+export const authReducer = authSlice.reducer;

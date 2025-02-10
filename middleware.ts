@@ -7,6 +7,7 @@ import type { NextRequest } from "next/server";
 // Пути, которые доступны не авторизованным пользователям
 const publicRoutes = ["/login"];
 
+/** Middleware который проверяет наличие токена, если его нет, то перенаправляет на страницу авторизации. Если есть, значит человек авторизован */
 export function middleware(request: NextRequest) {
    const token = request.cookies.get(COOKIE_TOKEN_NAME)?.value;
    const path = request.nextUrl.pathname;

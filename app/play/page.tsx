@@ -1,14 +1,14 @@
 import Link from "next/link";
 
-import { HomePage } from "@views/main";
+import { ChessBoard } from "@widgets/chessBoard";
 
 export default async function Home() {
    return (
       <div>
          <h1>
-            LOGIN PAGE <Link href={"/ "}>GO MAIN</Link>
+            CHESS page <Link href={"/ "}>go main</Link>
          </h1>
-         <HomePage />
+         <ChessBoard />
       </div>
    );
 }

@@ -3,7 +3,7 @@
 import { useTestTokenMutation } from "@shared/configs/store/api/auth/apiAuth";
 import { LoginForm } from "@widgets/loginForm";
 import { RegistrationForm } from "@widgets/registrationForm";
-const HomePage = () => {
+export const HomePage = () => {
    const [testToken] = useTestTokenMutation();
 
    const handlerTestToken = () => {
@@ -25,5 +25,3 @@ const HomePage = () => {
       </div>
    );
 };
-
-export default HomePage;

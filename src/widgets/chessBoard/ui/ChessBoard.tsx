@@ -18,6 +18,7 @@ export const ChessBoard = () => {
 
    // Клетки возможных ходов
    const [optionSquares, setOptionSquares] = useState({});
+   const [boardOrientation, setBoardOrientation] = useState<"white" | "black">("white");
 
    // Отображение окна трансформации пешки
    const [showPromotionDialog, setShowPromotionDialog] = useState(false);
@@ -119,10 +120,38 @@ export const ChessBoard = () => {
       return true;
    };
 
+   const copyFEN = () => {
+      navigator.clipboard
+         .writeText(game.fen())
+         .then(() => {
+            alert("FEN position copied to clipboard!");
+         })
+         .catch((err) => {
+            console.error("Failed to copy FEN: ", err);
+         });
+   };
+
+   const pasteFEN = () => {
+      navigator.clipboard
+         .readText()
+         .then((text) => {
+            try {
+               game.load(text);
+               clearMoveData();
+            } catch (error) {
+               alert("Invalid FEN position " + JSON.stringify(error));
+            }
+         })
+         .catch((err) => {
+            console.error("Failed to paste FEN: ", err);
+         });
+   };
+
    return (
       <div style={{ width: 800, height: 800 }}>
          <Chessboard
             id="BasicBoard"
+            boardOrientation={boardOrientation}
             areArrowsAllowed
             showPromotionDialog={showPromotionDialog}
             promotionDialogVariant={"default"}
@@ -138,6 +167,34 @@ export const ChessBoard = () => {
                ...optionSquares
             }}
          />
+
+         <button
+            onClick={() => {
+               game.undo();
+               clearMoveData();
+            }}
+         >
+            undo
+         </button>
+         <button onClick={() => {}}>redo</button>
+         <button
+            onClick={() => {
+               game.clear();
+               clearMoveData();
+            }}
+         >
+            clear
+         </button>
+         <button
+            onClick={() => {
+               setBoardOrientation(boardOrientation === "white" ? "black" : "white");
+               clearMoveData();
+            }}
+         >
+            rotate
+         </button>
+         <button onClick={copyFEN}>Скопировать FEN</button>
+         <button onClick={pasteFEN}>Вставить FEN</button>
       </div>
    );
 };

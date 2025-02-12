@@ -18,12 +18,10 @@ export function makeRandomMove(game: Chess) {
  */
 export const isMoveValid = (game: Chess, fromSquare: Square | null, toSquare: Square | null): Move | false => {
    if (!fromSquare) return false;
-
    const moves = game.moves({
       square: fromSquare,
       verbose: true
    });
-
    const foundMove = moves.find((m) => m.from === fromSquare && m.to === toSquare);
 
    return foundMove ?? false;
@@ -60,6 +58,7 @@ export function getAvailableMoves(game: Chess, square: Square): TAvailableMoves 
          borderRadius: "50%"
       };
    });
+
    newSquares[square] = {
       background: "rgba(255, 255, 0, 0.4)"
    };

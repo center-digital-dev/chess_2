@@ -65,3 +65,29 @@ export function getAvailableMoves(game: Chess, square: Square): TAvailableMoves 
 
    return newSquares;
 }
+
+export const copyFEN = (text: string) => {
+   navigator.clipboard
+      .writeText(text)
+      .then(() => {
+         alert("FEN position copied to clipboard!");
+      })
+      .catch((err) => {
+         console.error("Failed to copy FEN: ", err);
+      });
+};
+
+export const pasteFEN = (func: (text: string) => void) => {
+   navigator.clipboard
+      .readText()
+      .then((text) => {
+         try {
+            func(text);
+         } catch (error) {
+            alert("Invalid FEN position " + JSON.stringify(error));
+         }
+      })
+      .catch((err) => {
+         console.error("Failed to paste FEN: ", err);
+      });
+};

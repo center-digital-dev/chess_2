@@ -3,9 +3,17 @@ import { Chess, Square } from "chess.js";
 import { useState } from "react";
 import { Chessboard } from "react-chessboard";
 
-import { checkForPromotion, getAvailableMoves, isMoveValid, makeRandomMove } from "../lib/chessUtils";
+import styles from "./ChessBoard.module.scss";
+import {
+   checkForPromotion,
+   copyFEN,
+   getAvailableMoves,
+   isMoveValid,
+   makeRandomMove,
+   pasteFEN
+} from "../lib/chessUtils";
 
-import type { Piece } from "react-chessboard/dist/chessboard/types";
+import type { Piece, PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
 
 const mySide: "b" | "w" = "w"; //black |white
 export const ChessBoard = () => {
@@ -120,45 +128,57 @@ export const ChessBoard = () => {
       return true;
    };
 
-   const copyFEN = () => {
-      navigator.clipboard
-         .writeText(game.fen())
-         .then(() => {
-            alert("FEN position copied to clipboard!");
-         })
-         .catch((err) => {
-            console.error("Failed to copy FEN: ", err);
-         });
+   /**  Функция вызывается перед каждым ходом, чтобы проверить, является ли текущий ход тригером события превращением пешки. */
+   const onDropPromotionCheck = (sourceSquare: Square, targetSquare: Square, piece: Piece) => {
+      if (!moveFrom) return false;
+
+      // Проверка на возможность превращения пешки:
+      // - Для белой пешки: движение с 7-го ряда на 8-й
+      // - Для черной пешки: движение со 2-го ряда на 1-й
+      const isPawnPromotion =
+         (piece === "wP" && sourceSquare[1] === "7" && targetSquare[1] === "8") ||
+         (piece === "bP" && sourceSquare[1] === "2" && targetSquare[1] === "1");
+      const isValidMove = isMoveValid(game, moveFrom, targetSquare);
+      // Проверка, что ход выполняется на соседнюю вертикаль, а не по горизонту допустим
+      const isAdjacentFile = Math.abs(sourceSquare.charCodeAt(0) - targetSquare.charCodeAt(0)) <= 1;
+      if (isPawnPromotion && isValidMove && isAdjacentFile) {
+         setMoveTo(targetSquare);
+         setShowPromotionDialog(true);
+         return true;
+      }
+      return false;
    };
 
-   const pasteFEN = () => {
-      navigator.clipboard
-         .readText()
-         .then((text) => {
-            try {
-               game.load(text);
-               clearMoveData();
-            } catch (error) {
-               alert("Invalid FEN position " + JSON.stringify(error));
-            }
-         })
-         .catch((err) => {
-            console.error("Failed to paste FEN: ", err);
+   /**
+    * Функция которая вызывается при выборе фигуры в которую должна превратиться пешка. Возвращает флаг успешности хода.
+    */
+   const onPromotionPieceSelect = (piece: PromotionPieceOption | undefined) => {
+      if (!moveFrom || !moveTo) return false;
+      // Если ни одна фигура не была передана, значит пользователь пытается закрыть диалоговое окно
+      if (piece) {
+         game.move({
+            from: moveFrom,
+            to: moveTo,
+            promotion: piece[1].toLowerCase() ?? "q"
          });
+      }
+
+      clearMoveData();
+      setShowPromotionDialog(false);
+      return !!piece;
    };
 
    return (
-      <div style={{ width: 800, height: 800 }}>
+      <div className={styles.wrapper}>
          <Chessboard
             id="BasicBoard"
             boardOrientation={boardOrientation}
             areArrowsAllowed
             showPromotionDialog={showPromotionDialog}
             promotionDialogVariant={"default"}
-            // onPromotionPieceSelect={onPromotionPieceSelect}
+            onPromotionPieceSelect={onPromotionPieceSelect}
+            onPromotionCheck={onDropPromotionCheck}
             promotionToSquare={moveTo}
-            // onPromotionCheck={onDropPromotionCheck}
-
             position={game.fen()}
             onSquareClick={onSquareClick}
             onPieceDragBegin={onDragStart}
@@ -193,8 +213,17 @@ export const ChessBoard = () => {
          >
             rotate
          </button>
-         <button onClick={copyFEN}>Скопировать FEN</button>
-         <button onClick={pasteFEN}>Вставить FEN</button>
+         <button onClick={() => copyFEN(game.fen())}>Скопировать FEN</button>
+         <button
+            onClick={() =>
+               pasteFEN((text) => {
+                  game.load(text);
+                  clearMoveData();
+               })
+            }
+         >
+            Вставить FEN
+         </button>
       </div>
    );
 };

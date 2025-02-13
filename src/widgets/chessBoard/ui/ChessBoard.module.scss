@@ -1,0 +1,12 @@
+.wrapper {
+   width: 650px;
+   height: 650px;
+   display: block;
+   margin: 0 auto;
+
+   // блок с промоушеном
+   div[title="Choose promotion piece"] {
+      top: 50% !important;
+      left: 50% !important;
+   }
+}

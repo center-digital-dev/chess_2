@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-// import { ChessBoard } from "@widgets/chessBoard";
-import { EditChessBoard } from "@widgets/chessBoard/ui/EditChessBoard";
+import { ChessBoard } from "@widgets/chessBoard";
+// import { EditChessBoard } from "@widgets/chessBoard/ui/EditChessBoard";
 
 export default async function Home() {
    return (
@@ -9,7 +9,7 @@ export default async function Home() {
          <h1>
             EDIT CHESS page <Link href={"/ "}>go main</Link>
          </h1>
-         <EditChessBoard />
+         <ChessBoard />
       </div>
    );
 }

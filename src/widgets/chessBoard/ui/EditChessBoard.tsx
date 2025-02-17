@@ -49,7 +49,7 @@ export const EditChessBoard = () => {
                }}
             >
                {pieces.slice(6, 12).map((piece) => (
-                  <SparePiece key={piece} piece={piece} width={36} dndId="ManualBoardEditor" />
+                  <SparePiece key={piece} piece={piece} width={56} dndId="BasicBoard" />
                ))}
             </div>
             <Chessboard
@@ -70,7 +70,7 @@ export const EditChessBoard = () => {
                }}
             >
                {pieces.slice(0, 6).map((piece) => (
-                  <SparePiece key={piece} piece={piece} width={36} dndId="ManualBoardEditor" />
+                  <SparePiece key={piece} piece={piece} width={56} dndId="BasicBoard" />
                ))}
             </div>
          </ChessboardDnDProvider>

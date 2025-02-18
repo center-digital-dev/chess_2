@@ -1,15 +1,21 @@
 "use client";
 import { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
-import { RefAttributes, useCallback, useMemo, useRef, useState } from "react";
+import { RefAttributes, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ClearPremoves } from "react-chessboard";
 
-import { checkForPromotion, copyFEN, getAvailableMoves, isMoveValid, makeRandomMove } from "../lib/chessUtils";
+import {
+   checkForPromotion,
+   copyFEN,
+   getAvailableMoves,
+   highlightLastMoves,
+   isMoveValid,
+   makeRandomMove
+} from "../lib/chessUtils";
 
 import type { ChessboardProps, Piece, PromotionPieceOption } from "react-chessboard/dist/chessboard/types";
 
 interface IUseChessLogicProps {
    defaultBoardOrientation?: "white" | "black";
-
    mySide?: "b" | "w";
    fen?: string;
 }
@@ -17,12 +23,22 @@ interface IUseChessLogicProps {
 interface IUseChessLogicReturn {
    boardProps: ChessboardProps & RefAttributes<ClearPremoves>;
    isEditMode: boolean;
-   onUndoMove: () => void;
+   isGameOver: boolean;
+
    onClearBoard: () => void;
    onCopyFEN: () => void;
    onRotateBoard: () => void;
    onPasteFEN: (text: string) => void;
    onChangeEditMode: () => void;
+   restartGame: () => void;
+   history: {
+      moves: Move[];
+      isHistoryMode: boolean;
+      undo: () => void;
+      redo: () => void;
+      switchToMove: (moveIndex: number) => void;
+      historyIndex: number;
+   };
 }
 
 /**
@@ -34,32 +50,44 @@ interface IUseChessLogicReturn {
 export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn => {
    const { defaultBoardOrientation = "white", mySide = "w" } = props || {};
 
+   // Флаг, который говорит, что мы находится в состояние редактирование доски
    const isEditModeRef = useRef(false);
+   // Флаг, который говорит, что пользователь просматривает прошлые ходы
+   const [isHistoryMode, setIsHistoryMode] = useState(false);
 
    // Создаем экземпляр от класса Chess содержащий в себе логику игры в шахматы
    const game = useMemo(() => new Chess(), []);
 
+   // Состояние текущей fen позиции, истории ходов, индекс текущего хода
    const [fenPosition, setFenPosition] = useState<string>(() => game.fen());
+   const [moveHistory, setMoveHistory] = useState<Move[]>([]);
+   const [historyIndex, setHistoryIndex] = useState(-1);
 
    // Состояния, которые используются, когда пользователь перемещает фигуры
    const [moveFrom, setMoveFrom] = useState<Square | null>(null);
    const [moveTo, setMoveTo] = useState<Square | null>(null);
 
-   // Клетки возможных ходов
+   // Подсветка ходов.optionSquares - клетки возможных ходов, lastMoveSquares - клетки последнего хода
    const [optionSquares, setOptionSquares] = useState({});
+   // const [rightClickedSquares, setRightClickedSquares] = useState({});
+   const [lastMoveSquares, setLastMoveSquares] = useState({});
+
    const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(defaultBoardOrientation);
 
-   // Отображение окна трансформации пешки
    const [showPromotionDialog, setShowPromotionDialog] = useState(false);
 
+   /** Функция обработки хода */
    const gameMove = (props: { from: string; to: string; promotion?: string }): Move => {
       const move = game.move(props);
       setFenPosition(game.fen());
+      setLastMoveSquares(highlightLastMoves(move));
+
       // Ход компьютера
       setTimeout(() => {
-         makeRandomMove(game);
+         const movePK = makeRandomMove(game);
          setFenPosition(game.fen());
-      }, 300);
+         if (movePK) setLastMoveSquares(highlightLastMoves(movePK));
+      }, 800);
       return move;
    };
 
@@ -88,26 +116,23 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
    /** Метод, который обрабатывает случаи перетаскивания запасных фигур на доску */
    const handleSparePieceDrop = (piece: Piece, targetSquare: Square) => {
       if (isEditModeRef.current === false) return false;
-
       const color = piece[0] as Color;
       const type = piece[1].toLowerCase() as PieceSymbol;
 
       const success = game.put({ type, color }, targetSquare);
-
       if (!success) {
          alert(`The board already contains ${color === "w" ? "WHITE" : "BLACK"} KING`);
       }
 
       return success;
    };
+
    // Обработчик клика на клетку
    const onSquareClick = (square: Square) => {
       // Делаем проверку может ли пользователь ходить
-      if (game.turn() !== mySide) return;
-      // Если пользователь кликнул на одну и ту же фигуру второй раз. То мы убираем выделение хода у данной фигуры
-      if (square === moveFrom) return clearMoveData();
+      if (isHistoryMode || game.turn() !== mySide || isEditModeRef.current) return;
 
-      // Выбор клетки с которой будет произведен ход
+      // Если пользователь первый раз кликнул на клетку. Начало хода по клику
       if (!moveFrom) {
          const squarePiece = game.get(square);
 
@@ -119,9 +144,11 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
          return;
       }
 
-      // Выбор клетки на которую будет произведен ход
+      // Если пользователь кликнул на одну и ту же фигуру второй раз. То мы убираем выделение хода у данной фигуры
+      if (square === moveFrom) return clearMoveData();
+
+      // Если пользователь второй раз кликнул на клетку. Конец хода по клику
       if (!moveTo) {
-         // Проверка на валидность перед открытие диалогового окна
          const foundMove = isMoveValid(game, moveFrom, square);
 
          // Ход не валиден, возможно пользователь кликнул на клетку с другой фигурой или туда, куда нельзя ходить
@@ -138,9 +165,7 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
          // Проверка на превращение пешки
          if (checkForPromotion(foundMove, square)) return setShowPromotionDialog(true);
 
-         // Выполнение обычного хода
          gameMove({ from: moveFrom, to: square, promotion: "q" });
-
          clearMoveData();
       }
    };
@@ -148,8 +173,7 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
    // Обработчик начала перетаскивания фигуры
    const onDragStart = useCallback(
       (_: Piece, sourceSquare: Square) => {
-         console.log("start", isEditModeRef.current);
-         if (isEditModeRef.current) return;
+         if (isEditModeRef.current || isHistoryMode || game.turn() !== mySide) return;
 
          const hasMoveOptions = getMoveOptions(sourceSquare);
 
@@ -163,6 +187,7 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
 
    // Обработчик конца перетаскивания фигуры
    const onDragEnd = (sourceSquare: Square, targetSquare: Square, piece: Piece): boolean => {
+      if (isHistoryMode) return false;
       // Если включен режим редактирования, то изменяем логику работы перетаскивания
       if (isEditModeRef.current) {
          const color = piece[0] as Color;
@@ -181,7 +206,6 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
       if (game.turn() !== mySide || !moveFrom) return false;
 
       if (!moveTo) {
-         // Проверяем на валидность хода
          const foundMove = isMoveValid(game, moveFrom, targetSquare);
          if (!foundMove) return false;
 
@@ -193,9 +217,7 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
             return true;
          }
 
-         // Выполнение обычного хода
          gameMove({ from: moveFrom, to: targetSquare, promotion: "q" });
-
          clearMoveData();
       }
       return true;
@@ -212,8 +234,10 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
          (piece === "wP" && sourceSquare[1] === "7" && targetSquare[1] === "8") ||
          (piece === "bP" && sourceSquare[1] === "2" && targetSquare[1] === "1");
       const isValidMove = isMoveValid(game, moveFrom, targetSquare);
+
       // Проверка, что ход выполняется на соседнюю вертикаль, а не по горизонту допустим
       const isAdjacentFile = Math.abs(sourceSquare.charCodeAt(0) - targetSquare.charCodeAt(0)) <= 1;
+
       if (isPawnPromotion && isValidMove && isAdjacentFile) {
          setMoveTo(targetSquare);
          setShowPromotionDialog(true);
@@ -235,17 +259,62 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
       clearMoveData();
       return !!piece;
    };
-   console.log(isEditModeRef.current);
-   // console.log(game.pgn());
+
+   const gameHistory = game.history({ verbose: true });
+
+   // Сохраняем актуальное количество ходов в историю и новый индекс
+   useEffect(() => {
+      if (isEditModeRef.current === false && gameHistory.length > moveHistory.length) {
+         setMoveHistory(gameHistory);
+         setHistoryIndex(gameHistory.length - 1);
+      }
+   }, [gameHistory.length, isEditModeRef.current]);
+
+   /** Обработчик выбора хода из истории */
+   const handleMoveSelect = (indexMove: number) => {
+      if (indexMove < 0 || indexMove > moveHistory.length - 1) {
+         return;
+      }
+      if (indexMove === moveHistory.length - 1) {
+         setIsHistoryMode(false);
+      } else {
+         setIsHistoryMode(true);
+      }
+      clearMoveData();
+      const selectedMove = moveHistory[indexMove];
+      game.load(selectedMove.after);
+      setHistoryIndex(indexMove);
+      setFenPosition(game.fen());
+
+      // Подсветка хода
+      if (selectedMove) {
+         setLastMoveSquares(highlightLastMoves(selectedMove));
+      } else {
+         setLastMoveSquares({});
+      }
+   };
+
    return {
+      // Пропсы, который мы передаем доске
       boardProps: {
          boardOrientation,
          showPromotionDialog,
          areArrowsAllowed: isEditModeRef.current,
+         // onSquareRightClick: (square) => {
+         //    const colour = "rgba(0, 0, 255, 0.4)";
+         //    setRightClickedSquares({
+         //       ...rightClickedSquares,
+         //       [square]:
+         //          rightClickedSquares[square] && rightClickedSquares[square].backgroundColor === colour
+         //             ? undefined
+         //             : { backgroundColor: colour }
+         //    });
+         // },
          promotionToSquare: moveTo,
          position: fenPosition,
          customSquareStyles: {
-            ...(isEditModeRef.current ? {} : optionSquares)
+            ...(isEditModeRef.current ? {} : { ...optionSquares, ...lastMoveSquares })
+            // ...rightClickedSquares
          },
 
          // Функция обработки перетаскивания фигур за пределы доски
@@ -256,15 +325,16 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
          onPromotionCheck: isEditModeRef.current ? undefined : onDropPromotionCheck,
          onPromotionPieceSelect: isEditModeRef.current ? undefined : onPromotionPieceSelect,
          // Функции ходов живой игры. Обработка драг энд дроп, и кликов по клетке
-         onSquareClick: isEditModeRef.current ? undefined : onSquareClick,
+         onSquareClick: onSquareClick,
          onPieceDragBegin: onDragStart,
          onPieceDrop: onDragEnd
       },
 
       // Понятное Api для работы с доской
-      onUndoMove: () => {
-         game.undo();
+      restartGame: () => {
+         game.reset();
          setFenPosition(game.fen());
+         setLastMoveSquares({});
          clearMoveData();
       },
       onClearBoard: () => {
@@ -285,6 +355,20 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
 
          setFenPosition(game.fen());
       },
-      isEditMode: isEditModeRef.current
+      isGameOver: game.isGameOver(),
+      isEditMode: isEditModeRef.current,
+
+      history: {
+         moves: moveHistory,
+         isHistoryMode: isHistoryMode,
+         historyIndex,
+         undo: () => {
+            handleMoveSelect(historyIndex - 1);
+         },
+         redo: () => {
+            handleMoveSelect(historyIndex + 1);
+         },
+         switchToMove: handleMoveSelect
+      }
    };
 };

@@ -1,1 +1,1 @@
-export { ChessBoard } from "./ui/ChessBoard";
+export { ChessBoard } from "./ui/ChessBoard/ChessBoard";

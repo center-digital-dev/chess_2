@@ -8,7 +8,7 @@ export function makeRandomMove(game: Chess) {
    if (game.isGameOver() || game.isDraw() || possibleMoves.length === 0) return;
 
    const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-   game.move(possibleMoves[randomIndex]);
+   return game.move(possibleMoves[randomIndex]);
 }
 
 /**
@@ -90,4 +90,16 @@ export const pasteFEN = (func: (text: string) => void) => {
       .catch((err) => {
          console.error("Failed to paste FEN: ", err);
       });
+};
+
+// Функция реализации подсветки последних ходов
+export const highlightLastMoves = (lastMove: Move) => {
+   return {
+      [lastMove.from]: {
+         backgroundColor: "rgb(162 209 154)"
+      },
+      [lastMove.to]: {
+         backgroundColor: "rgb(106 184 93)"
+      }
+   };
 };

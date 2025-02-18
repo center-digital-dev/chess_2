@@ -1,12 +1,18 @@
 .wrapper {
-   width: 650px;
-   height: 650px;
-   display: block;
+   width: 700px;
+   height: 700px;
+   display: flex;
    margin: 0 auto;
+   margin-top: 10px;
+   gap: 20px;
 
    // блок с промоушеном
    div[title="Choose promotion piece"] {
       top: 50% !important;
       left: 50% !important;
+   }
+
+   .boardContainer {
+      width: 100%;
    }
 }

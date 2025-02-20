@@ -1,20 +1,29 @@
 "use client";
 
-import { useLogoutMutation } from "@shared/configs/store/api/auth/apiAuth";
+import { useRouter } from "next/navigation";
+
+import { useLogoutMutation } from "@api/auth/apiAuth";
 import { useAppSelector } from "@shared/hooks/useReduxStore";
+import { Button } from "@shared/ui";
 
 import cls from "./Nav.module.scss";
 
 export const LoginButton = () => {
    const { isAuth } = useAppSelector((state) => state.auth);
    const [logOut] = useLogoutMutation();
+   const router = useRouter();
 
    return (
       <div>
          {isAuth && (
-            <button className={cls.button} onClick={() => logOut()}>
-               Выйти
-            </button>
+            <>
+               <Button className={cls.button} onClick={() => router.push("/profile")}>
+                  Профиль
+               </Button>{" "}
+               <Button className={cls.button} onClick={() => logOut()}>
+                  Выйти
+               </Button>
+            </>
          )}
       </div>
    );

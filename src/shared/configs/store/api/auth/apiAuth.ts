@@ -65,13 +65,9 @@ const apiAuth = baseApi.injectEndpoints({
                try {
                   await queryFulfilled;
 
-                  // if (data.success) {
                   await deleteCookie(COOKIE_TOKEN_NAME);
                   dispatch(logOut());
                   updateStorageForOtherTabs(ETokenActionType.LOGOUT);
-                  // } else {
-                  //    throw data;
-                  // }
                } catch (error) {
                   logger.error("apiAuth ~ logout ~ error:", error);
                }

@@ -1,9 +1,9 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
-import { useTestTokenMutation } from "@shared/configs/store/api/auth/apiAuth";
+import { useTestTokenMutation } from "@api/auth/apiAuth";
 import { logIn, logOut, setAccessToken } from "@shared/configs/store/slices/authSlice";
 import { COOKIE_TOKEN_NAME } from "@shared/constants/cookiesNames";
 import { publicRoutes } from "@shared/constants/publicRoutes";
@@ -14,7 +14,9 @@ import { getCookie } from "@shared/libs/serverCookie";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    const [testToken] = useTestTokenMutation();
+
    const { accessToken, isAuth } = useAppSelector((state) => state.auth);
+   const [isCheckingToken, setIsCheckingToken] = useState(!!accessToken);
    const dispatch = useAppDispatch();
    const router = useRouter();
    const pathname = usePathname();
@@ -26,6 +28,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             .unwrap()
             .then(() => {
                dispatch(logIn());
+            })
+            .finally(() => {
+               setIsCheckingToken(false);
             });
       }
    }, []);
@@ -57,15 +62,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
    // Делаем проверку на приватные пути, если что редиректим на нужную нам стр
    useEffect(() => {
-      // Если пользователь не авторизован и он находится на приватном пути, то редиректим на страницу login
-      if (!isAuth && !publicRoutes.includes(pathname)) {
-         router.push("/login");
+      // Заходим в проверку в том случае, если мы уже слелали проверку на валидность токена
+      if (isCheckingToken === false) {
+         // Если пользователь не авторизован и он находится на приватном пути, то редиректим на страницу login
+         if (!isAuth && !publicRoutes.includes(pathname)) router.push("/login");
+
+         // Если пользователь авторизован и он находится на публичном пути, то редиректим на приватный путь
+         if (isAuth && publicRoutes.includes(pathname)) router.push("/");
       }
-      // Если пользователь авторизован и он находится на публичном пути, то редиректим на приватный путь
-      if (isAuth && publicRoutes.includes(pathname)) {
-         router.push("/");
-      }
-   }, [isAuth]);
+   }, [isAuth, isCheckingToken]);
 
    return <>{children}</>;
 };

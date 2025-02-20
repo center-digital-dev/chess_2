@@ -3,11 +3,15 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 interface IAuthState {
    accessToken: string | null;
    isAuth: boolean;
+
+   user: null | { name: string };
 }
 
 const initialState: IAuthState = {
    accessToken: null,
-   isAuth: false
+   isAuth: false,
+
+   user: null
 };
 
 export const authSlice = createSlice({
@@ -19,11 +23,14 @@ export const authSlice = createSlice({
       },
       logIn: (state) => {
          state.isAuth = true;
+         state.user = { name: "Den" };
       },
 
       logOut: (state) => {
          state.accessToken = null;
          state.isAuth = false;
+
+         state.user = null;
       }
    }
 });

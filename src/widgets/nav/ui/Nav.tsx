@@ -12,7 +12,7 @@ export function Nav() {
                   Главная
                </Link>
 
-               <Link href="/chess" className={styles.link}>
+               <Link href="/play" className={styles.link}>
                   Шахматы
                </Link>
             </div>

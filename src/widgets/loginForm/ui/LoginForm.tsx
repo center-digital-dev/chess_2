@@ -3,7 +3,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
 
-import { useLoginMutation } from "@shared/configs/store/api/auth/apiAuth";
+import { useLoginMutation } from "@api/auth/apiAuth";
 import { yupEmailFiled, yupPasswordFiled } from "@shared/constants/yupCustomFields";
 import { logger } from "@shared/libs/logging";
 

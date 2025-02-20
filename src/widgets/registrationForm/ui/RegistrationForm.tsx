@@ -1,3 +1,4 @@
+"use client";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -15,6 +16,7 @@ export const RegistrationForm = () => {
    const {
       register,
       handleSubmit,
+      setError,
       formState: { errors }
    } = useForm({
       resolver: yupResolver(schema),
@@ -35,7 +37,7 @@ export const RegistrationForm = () => {
                logger.success("Операция выполнена успешно", data.data)();
             } else {
                if (data.errorCode === 102) {
-                  logger.error("уже есть пользователь с таким email в БД", data.data)();
+                  setError("email", { message: "Пользователь с такой почтой уже существует" });
                }
             }
          })

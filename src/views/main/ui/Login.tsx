@@ -1,6 +1,6 @@
 import { LoginForm } from "@widgets/loginForm";
 import { RegistrationForm } from "@widgets/registrationForm";
-export const HomePage = () => {
+export const LoginPage = () => {
    return (
       <div style={{ marginTop: 20 }}>
          <br />

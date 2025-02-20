@@ -1,3 +1,4 @@
+"use client";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -31,9 +32,7 @@ export const LoginForm = () => {
          .unwrap()
          .then((data) => {
             if (data.success === true) {
-               // TODO Koshelev
-               // Сейчас нам token jwt приходит в response, что не очень безопастно для XSS атак. В будущем надо сказать бекендерам, что бы они его сували сразу в куки
-               logger.success("Операция выполнена успешно", data)();
+               logger.success("Login выполнен успешно")();
             } else {
                if (data.errorCode === 101) {
                   logger.error("Не корректные данные", data.data)();

@@ -1,11 +1,13 @@
 import { COOKIE_TOKEN_NAME } from "@shared/constants/cookiesNames";
+import { ETokenActionType } from "@shared/constants/storageNames";
 import { logger } from "@shared/libs/logging";
-import { setCookie } from "@shared/libs/serverCookie/cookies";
+import { deleteCookie, setCookie } from "@shared/libs/serverCookie";
+import { updateStorageForOtherTabs } from "@shared/libs/storages";
 import { TResponseApi } from "@shared/types/api";
 
 import { TAccessToken } from "./types";
 import { baseApi } from "../../baseApi";
-import { logIn } from "../../slices/authSlice";
+import { logIn, logOut, setAccessToken } from "../../slices/authSlice";
 
 const apiAuth = baseApi.injectEndpoints({
    endpoints: (build) => {
@@ -19,18 +21,19 @@ const apiAuth = baseApi.injectEndpoints({
                };
             },
             async onQueryStarted(args, { dispatch, queryFulfilled }) {
-               logger.info("apiAuth ~ onQueryStarted ~ args:", args);
                try {
                   const { data } = await queryFulfilled;
 
                   if (data.success) {
-                     dispatch(logIn({ token: data.data }));
                      await setCookie(COOKIE_TOKEN_NAME, data.data);
+                     updateStorageForOtherTabs(ETokenActionType.LOGIN);
+                     dispatch(setAccessToken({ token: data.data }));
+                     dispatch(logIn());
                   } else {
                      throw data;
                   }
                } catch (error) {
-                  logger.error("apiAuth ~ onQueryStarted ~ error:", error);
+                  logger.error("apiAuth ~ login ~ error:", error);
                }
             }
          }),
@@ -50,9 +53,32 @@ const apiAuth = baseApi.injectEndpoints({
                   method: "GET"
                };
             }
+         }),
+         logout: build.mutation<TResponseApi, void>({
+            query() {
+               return {
+                  url: "/Users/Logout",
+                  method: "POST"
+               };
+            },
+            async onQueryStarted(args, { dispatch, queryFulfilled }) {
+               try {
+                  await queryFulfilled;
+
+                  // if (data.success) {
+                  await deleteCookie(COOKIE_TOKEN_NAME);
+                  dispatch(logOut());
+                  updateStorageForOtherTabs(ETokenActionType.LOGOUT);
+                  // } else {
+                  //    throw data;
+                  // }
+               } catch (error) {
+                  logger.error("apiAuth ~ logout ~ error:", error);
+               }
+            }
          })
       };
    }
 });
 
-export const { useLoginMutation, useRegisterMutation, useTestTokenMutation } = apiAuth;
+export const { useLoginMutation, useRegisterMutation, useTestTokenMutation, useLogoutMutation } = apiAuth;

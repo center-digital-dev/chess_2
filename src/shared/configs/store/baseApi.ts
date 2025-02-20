@@ -2,7 +2,9 @@ import { BaseQueryFn, FetchArgs, FetchBaseQueryError, fetchBaseQuery } from "@re
 import { createApi } from "@reduxjs/toolkit/query/react";
 
 import { COOKIE_TOKEN_NAME } from "@shared/constants/cookiesNames";
-import { deleteCookie } from "@shared/libs/serverCookie/cookies";
+import { ETokenActionType } from "@shared/constants/storageNames";
+import { deleteCookie } from "@shared/libs/serverCookie";
+import { updateStorageForOtherTabs } from "@shared/libs/storages";
 
 import { logOut } from "./slices/authSlice";
 import { TAppStore } from "./store";
@@ -33,6 +35,7 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
    if (result.error && result.error.status === 401) {
       await deleteCookie(COOKIE_TOKEN_NAME);
       api.dispatch(logOut());
+      updateStorageForOtherTabs(ETokenActionType.LOGOUT);
    }
 
    return result;

@@ -1,13 +1,10 @@
-import Link from "next/link";
-
 import { HomePage } from "@views/main";
+import { Nav } from "@widgets/nav";
 
 export default async function Home() {
    return (
       <div>
-         <h1>
-            LOGIN PAGE <Link href={"/ "}>GO MAIN</Link>
-         </h1>
+         <Nav />
          <HomePage />
       </div>
    );

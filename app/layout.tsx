@@ -4,7 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@global/providers/AuthProvider";
 import { StoreProvider } from "@global/providers/StoreProvider";
 import { COOKIE_TOKEN_NAME } from "@shared/constants/cookiesNames";
-import { getCookie } from "@shared/libs/serverCookie/cookies";
+import { getCookie } from "@shared/libs/serverCookie";
 
 import "@shared/assets/styles/index.scss";
 

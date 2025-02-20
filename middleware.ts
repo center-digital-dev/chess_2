@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 
 import { COOKIE_TOKEN_NAME } from "@shared/constants/cookiesNames";
+import { publicRoutes } from "@shared/constants/publicRoutes";
 
 import type { NextRequest } from "next/server";
-
-// Пути, которые доступны не авторизованным пользователям
-const publicRoutes = ["/login"];
 
 /** Middleware который проверяет наличие токена, если его нет, то перенаправляет на страницу авторизации. Если есть, значит человек авторизован */
 export function middleware(request: NextRequest) {
@@ -16,9 +14,9 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/login", request.url));
    }
 
-   // if (token && publicRoutes.includes(path)) {
-   //    return NextResponse.redirect(new URL("/", request.url));
-   // }
+   if (token && publicRoutes.includes(path)) {
+      return NextResponse.redirect(new URL("/", request.url));
+   }
 
    return NextResponse.next();
 }

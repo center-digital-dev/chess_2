@@ -1,0 +1,1 @@
+export { updateStorageForOtherTabs } from "./localStorage";

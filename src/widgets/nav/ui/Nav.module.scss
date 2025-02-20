@@ -1,0 +1,45 @@
+.nav {
+   background-color: #f3f4f6;
+   display: flex;
+   justify-content: center;
+}
+
+.container {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   padding: 1rem;
+   width: 100%;
+   max-width: 1360px;
+}
+
+.linkContainer {
+   display: flex;
+   gap: 1rem;
+}
+
+.link {
+   color: #2563eb;
+   text-decoration: none;
+   font-family: Arial, Helvetica, sans-serif;
+   font-size: 16px;
+   font-weight: 500;
+}
+
+.link:hover {
+   color: #1e40af;
+}
+
+.button {
+   padding: 0.5rem 1rem;
+   background-color: #fff;
+   color: #2563eb;
+   border: 1px solid #2563eb;
+   border-radius: 0.25rem;
+   cursor: pointer;
+}
+
+.button:hover {
+   background-color: #2563eb;
+   color: #fff;
+}

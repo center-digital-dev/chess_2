@@ -1,11 +1,9 @@
-import Link from "next/link";
+import { Nav } from "@widgets/nav";
 
 export default async function Home() {
    return (
       <div>
-         <h1>
-            BASE <Link href={"/login"}>LOGIN</Link>
-         </h1>
+         <Nav />
       </div>
    );
 }

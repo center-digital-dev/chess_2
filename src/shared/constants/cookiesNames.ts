@@ -1,2 +1,2 @@
 // Наименование куки где храниться jwt токен
-export const COOKIE_TOKEN_NAME = "tk";
+export const COOKIE_TOKEN_NAME = "chess_tk";

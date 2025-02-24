@@ -6,6 +6,7 @@ import * as yup from "yup";
 import { useLoginMutation } from "@api/auth/apiAuth";
 import { yupEmailFiled, yupPasswordFiled } from "@shared/constants/yupCustomFields";
 import { logger } from "@shared/libs/logging";
+import { Button, Input } from "@shared/ui";
 
 const schema = yup.object().shape({
    email: yupEmailFiled,
@@ -48,16 +49,28 @@ export const LoginForm = () => {
    };
 
    return (
-      <form onSubmit={handleSubmit(onSubmit)}>
-         <div>
-            <input type="text" placeholder="Emaiel" {...register("email")} autoComplete="off" />
-            {errors.email && <p>{errors.email.message}</p>}
-         </div>
-         <div>
-            <input placeholder="Пароль" {...register("password")} autoComplete="off" />
-            {errors.password && <p>{errors.password.message}</p>}
-         </div>
-         <button type="submit">Войти</button>
+      <form
+         onSubmit={handleSubmit(onSubmit)}
+         style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 300 }}
+      >
+         <Input
+            type="text"
+            placeholder="Email"
+            {...register("email")}
+            autoComplete="off"
+            error={errors.email}
+            label="Почта"
+         />
+
+         <Input
+            placeholder="Пароль"
+            {...register("password")}
+            autoComplete="off"
+            error={errors.password}
+            label="Пароль"
+         />
+
+         <Button type="submit">Войти</Button>
       </form>
    );
 };

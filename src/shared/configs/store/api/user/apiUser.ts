@@ -17,16 +17,39 @@ const apiUser = baseApi.injectEndpoints({
             async onQueryStarted(args, { queryFulfilled }) {
                try {
                   await queryFulfilled;
-                  // if (data.success) {
-                  //    await setCookie(COOKIE_TOKEN_NAME, data.data);
-                  //    updateStorageForOtherTabs(ETokenActionType.LOGIN);
-                  //    dispatch(setAccessToken({ token: data.data }));
-                  //    dispatch(logIn());
-                  // } else {
-                  //    throw data;
-                  // }
                } catch (error) {
                   logger.error("apiUser ~ changePassword ~ error:", error);
+               }
+            }
+         }),
+         changeProfile: build.mutation<TResponseApi<boolean>, { newEmail: string }>({
+            query(body) {
+               return {
+                  url: "/Users/User",
+                  method: "PUT",
+                  body
+               };
+            },
+            async onQueryStarted(args, { queryFulfilled }) {
+               try {
+                  await queryFulfilled;
+               } catch (error) {
+                  logger.error("apiUser ~ changePassword ~ error:", error);
+               }
+            }
+         }),
+         getProfile: build.query<TResponseApi<{ email: string; userName: string }>, void>({
+            query() {
+               return {
+                  url: "/Users/User"
+               };
+            },
+            providesTags: ["Profile"],
+            async onQueryStarted(args, { queryFulfilled }) {
+               try {
+                  await queryFulfilled;
+               } catch (error) {
+                  logger.error("apiUser ~ getProfile ~ error:", error);
                }
             }
          })
@@ -34,4 +57,5 @@ const apiUser = baseApi.injectEndpoints({
    }
 });
 
-export const { useChangePasswordMutation } = apiUser;
+export const { useChangePasswordMutation, useChangeProfileMutation, useGetProfileQuery, useLazyGetProfileQuery } =
+   apiUser;

@@ -1,9 +1,9 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
-import { useTestTokenMutation } from "@api/auth/apiAuth";
+import { useLazyGetProfileQuery } from "@shared/configs/store/api/user/apiUser";
 import { logIn, logOut, setAccessToken } from "@shared/configs/store/slices/authSlice";
 import { COOKIE_TOKEN_NAME } from "@shared/constants/cookiesNames";
 import { publicRoutes } from "@shared/constants/publicRoutes";
@@ -13,8 +13,7 @@ import { logger } from "@shared/libs/logging";
 import { getCookie } from "@shared/libs/serverCookie";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-   const [testToken] = useTestTokenMutation();
-
+   const [getProfile] = useLazyGetProfileQuery();
    const { accessToken, isAuth } = useAppSelector((state) => state.auth);
    const [isCheckingToken, setIsCheckingToken] = useState(!!accessToken);
    const dispatch = useAppDispatch();
@@ -22,13 +21,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
    const pathname = usePathname();
 
    // Проверяем валидность токена, если он есть
-   useEffect(() => {
+   useLayoutEffect(() => {
       if (accessToken) {
-         testToken()
+         getProfile()
             .unwrap()
             .then(() => {
                dispatch(logIn());
             })
+
             .finally(() => {
                setIsCheckingToken(false);
             });

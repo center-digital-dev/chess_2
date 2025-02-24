@@ -5,7 +5,6 @@ import * as yup from "yup";
 
 import { useRegisterMutation } from "@api/auth/apiAuth";
 import { yupEmailFiled, yupPasswordFiled } from "@shared/constants/yupCustomFields";
-import { logger } from "@shared/libs/logging";
 import { Button, Input } from "@shared/ui";
 
 const schema = yup.object().shape({
@@ -33,17 +32,13 @@ export const RegistrationForm = () => {
    const onSubmit = (data: yup.InferType<typeof schema>) => {
       registerUser({ email: data.email, password: data.password, userName: data.username })
          .unwrap()
-         .then((data) => {
-            if (data.success === true) {
-               logger.success("Операция выполнена успешно", data.data)();
-            } else {
-               if (data.errorCode === 102) {
+
+         .catch((err) => {
+            if (typeof err === "object" && err !== null && "errorCode" in err) {
+               if (err.errorCode === 102) {
                   setError("email", { message: "Пользователь с такой почтой уже существует" });
                }
             }
-         })
-         .catch((e) => {
-            logger.error("Что то пошло не так при регистрации", e)();
          });
    };
    return (

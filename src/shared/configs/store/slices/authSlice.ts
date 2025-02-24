@@ -1,7 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
-import { IUserProfile } from "@shared/types/profile";
-
 interface IAuthState {
    accessToken: string | null;
    isAuth: boolean;

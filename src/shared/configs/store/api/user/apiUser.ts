@@ -1,28 +1,20 @@
-import { logger } from "@shared/libs/logging";
-import { TResponseApi } from "@shared/types/api";
+import { IUserProfile } from "@shared/types/profile";
 
 import { baseApi } from "../../baseApi";
 
 const apiUser = baseApi.injectEndpoints({
    endpoints: (build) => {
       return {
-         changePassword: build.mutation<TResponseApi<string>, { oldPassword: string; newPassword: string }>({
+         changePassword: build.mutation<string, { oldPassword: string; newPassword: string }>({
             query(body) {
                return {
                   url: "/Users/Password",
                   method: "PUT",
                   body
                };
-            },
-            async onQueryStarted(args, { queryFulfilled }) {
-               try {
-                  await queryFulfilled;
-               } catch (error) {
-                  logger.error("apiUser ~ changePassword ~ error:", error);
-               }
             }
          }),
-         changeProfile: build.mutation<TResponseApi<boolean>, { newEmail: string }>({
+         changeProfile: build.mutation<boolean, { newEmail: string }>({
             query(body) {
                return {
                   url: "/Users/User",
@@ -30,28 +22,16 @@ const apiUser = baseApi.injectEndpoints({
                   body
                };
             },
-            async onQueryStarted(args, { queryFulfilled }) {
-               try {
-                  await queryFulfilled;
-               } catch (error) {
-                  logger.error("apiUser ~ changePassword ~ error:", error);
-               }
-            }
+            invalidatesTags: ["Profile"]
          }),
-         getProfile: build.query<TResponseApi<{ email: string; userName: string }>, void>({
+         getProfile: build.query<IUserProfile, void>({
             query() {
                return {
                   url: "/Users/User"
                };
             },
-            providesTags: ["Profile"],
-            async onQueryStarted(args, { queryFulfilled }) {
-               try {
-                  await queryFulfilled;
-               } catch (error) {
-                  logger.error("apiUser ~ getProfile ~ error:", error);
-               }
-            }
+
+            providesTags: ["Profile"]
          })
       };
    }

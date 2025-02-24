@@ -15,7 +15,7 @@ export const EditPasswordForm = () => {
       register,
       handleSubmit,
       setError,
-      formState: { errors },
+      formState: { errors, isDirty },
       reset
    } = useForm({
       resolver: yupResolver(schemaChangePassword)
@@ -25,21 +25,19 @@ export const EditPasswordForm = () => {
    const onSubmit = (data: InferType<typeof schemaChangePassword>) => {
       changePassword(data)
          .unwrap()
-         .then((data) => {
-            if (data.success === true) {
-               reset({
-                  oldPassword: "",
-                  newPassword: ""
-               });
-               alert("Пароль успешно изменен");
-            } else {
-               if (data.errorCode === 103) {
+         .then(() => {
+            reset({
+               oldPassword: "",
+               newPassword: ""
+            });
+            alert("Пароль успешно изменен");
+         })
+         .catch((err) => {
+            if (typeof err === "object" && err !== null && "errorCode" in err) {
+               if (err.errorCode === 103) {
                   setError("oldPassword", { message: "Неверный старый пароль" });
                }
             }
-         })
-         .catch((e) => {
-            console.log(e);
          });
    };
 
@@ -60,7 +58,9 @@ export const EditPasswordForm = () => {
             error={errors.newPassword}
          />
 
-         <Button onClick={handleSubmit(onSubmit)}>Сменить пароль</Button>
+         <Button onClick={handleSubmit(onSubmit)} isDisabled={!isDirty}>
+            Сменить пароль
+         </Button>
       </div>
    );
 };

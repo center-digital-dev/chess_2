@@ -5,7 +5,6 @@ import * as yup from "yup";
 
 import { useLoginMutation } from "@api/auth/apiAuth";
 import { yupEmailFiled, yupPasswordFiled } from "@shared/constants/yupCustomFields";
-import { logger } from "@shared/libs/logging";
 import { Button, Input } from "@shared/ui";
 
 const schema = yup.object().shape({
@@ -31,20 +30,15 @@ export const LoginForm = () => {
    const onSubmit = (data: yup.InferType<typeof schema>) => {
       login({ email: data.email, password: data.password })
          .unwrap()
-         .then((data) => {
-            if (data.success === true) {
-               logger.success("Login выполнен успешно")();
-            } else {
-               if (data.errorCode === 101) {
-                  logger.error("Не корректные данные", data.data)();
+         .catch((err: unknown) => {
+            if (typeof err === "object" && err !== null && "errorCode" in err) {
+               if (err.errorCode === 101) {
+                  alert("Не корректные данные");
                }
-               if (data.errorCode === 103) {
-                  logger.error("Не верный пароль", data.data)();
+               if (err.errorCode === 103) {
+                  alert("Не верный пароль");
                }
             }
-         })
-         .catch((e) => {
-            logger.error("Что то пошло не так при входе", e)();
          });
    };
 

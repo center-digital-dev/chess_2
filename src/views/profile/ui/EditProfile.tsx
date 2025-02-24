@@ -5,6 +5,8 @@ export const EditProfilePage = () => {
    return (
       <div className="container" style={{ marginTop: 20 }}>
          <EditProfileForm />
+         <br />
+         <br />
          <EditPasswordForm />
       </div>
    );

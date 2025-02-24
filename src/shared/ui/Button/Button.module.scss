@@ -12,3 +12,8 @@
    background-color: #2563eb;
    color: #fff;
 }
+
+.disabled {
+   opacity: 0.6;
+   pointer-events: none;
+}

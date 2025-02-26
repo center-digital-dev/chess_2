@@ -7,6 +7,7 @@ import {
    checkForPromotion,
    copyFEN,
    getAvailableMoves,
+   highlightCheckOfKing,
    highlightLastMoves,
    isMoveValid,
    makeRandomMove
@@ -60,6 +61,7 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
 
    // Состояние текущей fen позиции, истории ходов, индекс текущего хода
    const [fenPosition, setFenPosition] = useState<string>(() => game.fen());
+   // Состояние истории ходов, и индекс хода на котором мы сейчас находимся. Нужно для просмотра истории
    const [moveHistory, setMoveHistory] = useState<Move[]>([]);
    const [historyIndex, setHistoryIndex] = useState(-1);
 
@@ -71,9 +73,9 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
    const [optionSquares, setOptionSquares] = useState({});
    // const [rightClickedSquares, setRightClickedSquares] = useState({});
    const [lastMoveSquares, setLastMoveSquares] = useState({});
+   const [checkOfKingSquares, setCheckOfKingSquares] = useState({});
 
    const [boardOrientation, setBoardOrientation] = useState<"white" | "black">(defaultBoardOrientation);
-
    const [showPromotionDialog, setShowPromotionDialog] = useState(false);
 
    /** Функция обработки хода */
@@ -81,12 +83,16 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
       const move = game.move(props);
       setFenPosition(game.fen());
       setLastMoveSquares(highlightLastMoves(move));
-
+      setCheckOfKingSquares(highlightCheckOfKing(game));
       // Ход компьютера
       setTimeout(() => {
          const movePK = makeRandomMove(game);
-         setFenPosition(game.fen());
-         if (movePK) setLastMoveSquares(highlightLastMoves(movePK));
+
+         if (movePK) {
+            setFenPosition(game.fen());
+            setLastMoveSquares(highlightLastMoves(movePK));
+            setCheckOfKingSquares(highlightCheckOfKing(game));
+         }
       }, 800);
       return move;
    };
@@ -97,6 +103,7 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
       setMoveTo(null);
       setShowPromotionDialog(false);
       setOptionSquares({});
+      setCheckOfKingSquares({});
    };
 
    /** Получаем возможные ходы, раскрашиваем их в нужный цвет и возвращаем true если ходы есть */
@@ -188,6 +195,7 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
    // Обработчик конца перетаскивания фигуры
    const onDragEnd = (sourceSquare: Square, targetSquare: Square, piece: Piece): boolean => {
       if (isHistoryMode) return false;
+
       // Если включен режим редактирования, то изменяем логику работы перетаскивания
       if (isEditModeRef.current) {
          const color = piece[0] as Color;
@@ -270,9 +278,13 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
       }
    }, [gameHistory.length, isEditModeRef.current]);
 
-   /** Обработчик выбора хода из истории */
+   /** Обработчик выбора хода из истории
+    *
+    * indexMove - может быть только больше нуля и меньше длины истории. Но есть одно исключение
+    * если indexMove === -1, то это значит, что мы хотим вернуться в начало истории, когда не было ни одного хода
+    */
    const handleMoveSelect = (indexMove: number) => {
-      if (indexMove < 0 || indexMove > moveHistory.length - 1) {
+      if (indexMove < -1 || indexMove > moveHistory.length - 1) {
          return;
       }
       if (indexMove === moveHistory.length - 1) {
@@ -281,13 +293,15 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
          setIsHistoryMode(true);
       }
       clearMoveData();
-      const selectedMove = moveHistory[indexMove];
-      game.load(selectedMove.after);
+
+      const selectedMove = moveHistory[indexMove === -1 ? 0 : indexMove];
+      console.log(indexMove, indexMove || 0);
+      game.load(indexMove === -1 ? selectedMove.before : selectedMove.after);
       setHistoryIndex(indexMove);
       setFenPosition(game.fen());
 
       // Подсветка хода
-      if (selectedMove) {
+      if (selectedMove && indexMove !== -1) {
          setLastMoveSquares(highlightLastMoves(selectedMove));
       } else {
          setLastMoveSquares({});
@@ -313,7 +327,7 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
          promotionToSquare: moveTo,
          position: fenPosition,
          customSquareStyles: {
-            ...(isEditModeRef.current ? {} : { ...optionSquares, ...lastMoveSquares })
+            ...(isEditModeRef.current ? {} : { ...optionSquares, ...lastMoveSquares, ...checkOfKingSquares })
             // ...rightClickedSquares
          },
 

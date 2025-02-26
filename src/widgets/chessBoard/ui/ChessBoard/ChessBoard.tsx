@@ -1,5 +1,6 @@
 "use client";
 
+import { useLayoutEffect, useState } from "react";
 import { Chessboard, ChessboardDnDProvider, SparePiece } from "react-chessboard";
 
 import styles from "./ChessBoard.module.scss";
@@ -12,6 +13,7 @@ import type { Piece } from "react-chessboard/dist/chessboard/types";
 const pieces: Piece[] = ["wP", "wN", "wB", "wR", "wQ", "wK", "bP", "bN", "bB", "bR", "bQ", "bK"];
 
 export const ChessBoard = () => {
+   const [_, setRestartState] = useState("");
    const {
       boardProps,
       onClearBoard,
@@ -25,15 +27,14 @@ export const ChessBoard = () => {
       history
    } = useChessLogic();
 
+   // TODO Koshelev При первоночальном рендере драг энд дроп почему то не срабатывает. По этому явно заставляет компонент один раз отрендерится, что DnD сразу работал
+   useLayoutEffect(() => {
+      setRestartState("restart");
+   }, []);
+
    return (
       <ChessboardDnDProvider>
          <div className={styles.wrapper}>
-            {isGameOver && (
-               <div>
-                  <h1>КОНЕЦ ИГРЫ</h1>
-                  <button onClick={restartGame}>Начать заново</button>
-               </div>
-            )}
             <div className={styles.boardContainer} style={isGameOver ? { pointerEvents: "none" } : {}}>
                {isEditMode && (
                   <>
@@ -54,15 +55,14 @@ export const ChessBoard = () => {
 
                   <button onClick={history.undo}>undo</button>
                   <button onClick={history.redo}>redo</button>
-
                   <button onClick={onCopyFEN}>Скопировать FEN</button>
-                  <button onClick={() => pasteFEN(onPasteFEN)}>Вставить FEN</button>
                   <hr />
                   <button onClick={onChangeEditMode}>
                      {isEditMode ? "Выключить" : "Включить"} режим редактирования
                   </button>
                   {isEditMode && (
                      <>
+                        <button onClick={() => pasteFEN(onPasteFEN)}>Вставить FEN</button>
                         <button onClick={onRotateBoard}>rotate</button>
                         <button onClick={onClearBoard}>clear</button>
                         <button onClick={() => onPasteFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")}>
@@ -87,6 +87,12 @@ export const ChessBoard = () => {
                )}
             </div>
             <div style={isGameOver ? { pointerEvents: "none" } : {}}>
+               {isGameOver && (
+                  <div>
+                     <h1>КОНЕЦ ИГРЫ</h1>
+                     <button onClick={restartGame}>Начать заново</button>
+                  </div>
+               )}
                <HistoryChessMoves
                   history={history.moves}
                   currentMoveIndex={history.historyIndex}

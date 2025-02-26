@@ -92,14 +92,34 @@ export const pasteFEN = (func: (text: string) => void) => {
       });
 };
 
+/** Функция, для раскрашивания клетки, где находится король при шахе*/
+export const highlightCheckOfKing = (game: Chess) => {
+   if (game.inCheck()) {
+      const kingSquare = game
+         .board()
+         .flat()
+         .find((piece) => piece && piece.type === "k" && piece.color === game.turn())?.square;
+
+      if (kingSquare) {
+         return {
+            [kingSquare]: {
+               backgroundColor: "rgba(252, 64, 64, 0.43)",
+               borderRadius: "8px"
+            }
+         };
+      }
+   }
+
+   return {};
+};
 // Функция реализации подсветки последних ходов
 export const highlightLastMoves = (lastMove: Move) => {
    return {
       [lastMove.from]: {
-         backgroundColor: "rgb(162 209 154)"
+         backgroundColor: "rgb(192 189 68)"
       },
       [lastMove.to]: {
-         backgroundColor: "rgb(106 184 93)"
+         backgroundColor: "rgb(216 211 39)"
       }
    };
 };

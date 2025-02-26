@@ -42,11 +42,11 @@ export const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, Fetch
 
    // Если с бека нам пришел ответ без ошибки, то проверяем какой конкретно объект пришел
    // На текущем проекте может быть два случая: 1) Ответ может быть любым 2) Ответ может быть типа TResponseApi
+   // Проверили что объект ответа является типа TResponseApi
    if (!("error" in result) && isCheckResponseApi(result.data)) {
-      // Проверили что объект ответа является типа TResponseApi
       const answer = result.data;
 
-      // Если ответ не успешный, то возвращаем ошибку
+      // Если ответ не успешный, то возвращаем ошибку. Что бы хуки useQuery нормально обрабатывали ситуацию с errorCode и флаг isError срабатывал
       if (answer.success === false) {
          return {
             error: {

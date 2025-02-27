@@ -103,7 +103,6 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
       setMoveTo(null);
       setShowPromotionDialog(false);
       setOptionSquares({});
-      setCheckOfKingSquares({});
    };
 
    /** Получаем возможные ходы, раскрашиваем их в нужный цвет и возвращаем true если ходы есть */
@@ -307,7 +306,7 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
          setLastMoveSquares({});
       }
    };
-
+   console.log(optionSquares, lastMoveSquares, checkOfKingSquares);
    return {
       // Пропсы, который мы передаем доске
       boardProps: {
@@ -349,11 +348,14 @@ export const useChessLogic = (props?: IUseChessLogicProps): IUseChessLogicReturn
          game.reset();
          setFenPosition(game.fen());
          setLastMoveSquares({});
+         setCheckOfKingSquares({});
          clearMoveData();
       },
       onClearBoard: () => {
          game.clear();
          setFenPosition(game.fen());
+         setLastMoveSquares({});
+         setCheckOfKingSquares({});
          clearMoveData();
       },
       onCopyFEN: () => copyFEN(game.fen()),
